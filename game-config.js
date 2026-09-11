@@ -7,7 +7,7 @@
  * works fully without it — scores just won't be saved or shown).
  */
 const GAME_CONFIG = {
-  LEADERBOARD_URL: ""
+  LEADERBOARD_URL: "https://script.google.com/macros/s/AKfycbzH_M6LuXL0MtrDSd7ajR8o0hOb8BFuDoEfpSqVyhetJu0gL32wFkM9UIloyvtmzJ-k/exec"
 };
 
 if (typeof window !== "undefined") {
