@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Nowak Snake Challenge — The Nowak Insider</title>
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="game-header">
+      <img src="assets/logos/nowak-logo-white.png" alt="Nowak Dental Supplies">
+      <div class="kicker">Team Engagement</div>
+    </header>
+
+    <main>
+      <!-- START SCREEN -->
+      <section class="screen active" id="screen-start">
+        <h1 class="start-title">Nowak Snake Challenge</h1>
+        <p class="start-sub">Guide the snake, gobble up teeth, beat the team's high score.</p>
+
+        <label class="nickname-label" for="nicknameInput">What should we call you?</label>
+        <input class="nickname-input" id="nicknameInput" type="text" placeholder="Enter your name or nickname" maxlength="40" autocomplete="off">
+        <p class="nickname-error" id="nicknameError">Type a name or nickname to start.</p>
+
+        <button class="btn" id="playBtn">Play</button>
+        <button class="btn btn-secondary" id="showLeaderboardBtn">🏆 View Leaderboard</button>
+
+        <div class="leaderboard-panel" id="startLeaderboardPanel" hidden>
+          <div class="leaderboard-title">Top Scores</div>
+          <div class="leaderboard-list" id="startLeaderboardList"></div>
+        </div>
+      </section>
+
+      <!-- GAME SCREEN -->
+      <section class="screen" id="screen-game">
+        <div class="hud">
+          <div class="hud-item">
+            <div class="hud-label">Score</div>
+            <div class="hud-value" id="scoreValue">0</div>
+          </div>
+          <div class="hud-item">
+            <div class="hud-label">Best (this run)</div>
+            <div class="hud-value" id="bestValue">0</div>
+          </div>
+        </div>
+
+        <div class="canvas-wrap">
+          <canvas id="gameCanvas"></canvas>
+          <div class="canvas-overlay" id="startOverlay">
+            <div class="overlay-text">Tap or press a direction to start</div>
+          </div>
+        </div>
+
+        <div class="touch-controls" id="touchControls">
+          <button class="tc-btn tc-up" id="btnUp" aria-label="Up">&#9650;</button>
+          <div class="tc-row">
+            <button class="tc-btn tc-left" id="btnLeft" aria-label="Left">&#9664;</button>
+            <button class="tc-btn tc-down" id="btnDown" aria-label="Down">&#9660;</button>
+            <button class="tc-btn tc-right" id="btnRight" aria-label="Right">&#9654;</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- GAME OVER SCREEN -->
+      <section class="screen" id="screen-gameover">
+        <h2 class="gameover-title">Game Over!</h2>
+        <p class="gameover-score" id="finalScoreText"></p>
+        <p class="gameover-sub" id="submitStatusText"></p>
+
+        <div class="leaderboard-panel" id="gameoverLeaderboardPanel">
+          <div class="leaderboard-title">Top Scores</div>
+          <div class="leaderboard-list" id="gameoverLeaderboardList"></div>
+        </div>
+
+        <div class="result-actions">
+          <button class="btn" id="playAgainBtn">Play Again</button>
+          <button class="btn btn-secondary" id="backToStartBtn">Back to Start</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="game-footer">
+      <strong>Better smiles. Together.</strong><br>
+      Nowak Dental Supplies
+    </footer>
+  </div>
+
+  <script src="game-config.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
