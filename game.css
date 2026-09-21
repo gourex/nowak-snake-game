@@ -124,6 +124,36 @@ main { flex: 1; padding: 24px 24px 32px; }
   line-height: 1.5;
 }
 
+.how-to-play {
+  background: var(--bg-light);
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius);
+  padding: 16px 18px;
+  margin: 0 0 22px;
+}
+.how-to-title {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--main-blue);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.how-to-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.how-to-list li {
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
 .nickname-label {
   display: block;
   font-size: 13px;
