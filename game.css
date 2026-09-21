@@ -322,6 +322,44 @@ main { flex: 1; padding: 24px 24px 32px; }
 }
 .tc-btn:active { background: var(--main-blue); color: var(--white); }
 
+/* CALCULATING SCREEN --------------------------------------------------------- */
+.spinner-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0 18px;
+}
+.spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 6px solid var(--bg-light);
+  border-top-color: var(--main-blue);
+  border-right-color: var(--yellow);
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.calculating-text {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark-blue);
+  margin: 0 0 20px;
+}
+
+/* SCORE TIER IMAGE ------------------------------------------------------------ */
+.tier-image {
+  display: block;
+  width: 180px;
+  height: 180px;
+  max-width: 60%;
+  margin: 0 auto 16px;
+  border-radius: var(--card-radius);
+  border: 3px solid var(--yellow);
+  object-fit: cover;
+  background: var(--bg-light);
+}
+.tier-image[src=""], .tier-image:not([src]) { display: none; }
+
 /* GAME OVER SCREEN ---------------------------------------------------------- */
 #screen-gameover.active { animation: gameoverReveal 0.4s ease; }
 @keyframes gameoverReveal {

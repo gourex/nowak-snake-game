@@ -35,12 +35,31 @@
   const screens = {
     start: document.getElementById("screen-start"),
     game: document.getElementById("screen-game"),
+    calculating: document.getElementById("screen-calculating"),
     gameover: document.getElementById("screen-gameover")
   };
   function showScreen(name) {
     Object.keys(screens).forEach((key) => {
       screens[key].classList.toggle("active", key === name);
     });
+  }
+
+  // ---- Score tiers (image shown at game-over, per final score bracket) --------
+  // Each bracket has 2 reaction images; one is picked at random on reveal.
+  const CALCULATING_DELAY_MS = 1300;
+  const SCORE_TIERS = [
+    { min: 0, max: 99, images: ["assets/score-tiers/0-99-1.png", "assets/score-tiers/0-99-2.png"] },
+    { min: 100, max: 299, images: ["assets/score-tiers/100-299-1.png", "assets/score-tiers/100-299-2.png"] },
+    { min: 300, max: 499, images: ["assets/score-tiers/300-499-1.png", "assets/score-tiers/300-499-2.png"] },
+    { min: 500, max: 999, images: ["assets/score-tiers/500-999-1.png", "assets/score-tiers/500-999-2.png"] },
+    { min: 1000, max: 1499, images: ["assets/score-tiers/1000-1499-1.png", "assets/score-tiers/1000-1499-2.png"] },
+    { min: 1500, max: 1999, images: ["assets/score-tiers/1500-1999-1.png", "assets/score-tiers/1500-1999-2.png"] },
+    { min: 2000, max: Infinity, images: ["assets/score-tiers/2000-plus-1.png", "assets/score-tiers/2000-plus-2.png"] }
+  ];
+  function getScoreTierImage(finalScore) {
+    const tier = SCORE_TIERS.find((t) => finalScore >= t.min && finalScore <= t.max) || SCORE_TIERS[0];
+    const images = tier.images;
+    return images[Math.floor(Math.random() * images.length)];
   }
 
   // ---- Nickname ---------------------------------------------------------------
@@ -199,10 +218,19 @@
   function gameOver() {
     running = false;
     clearInterval(timerId);
-    showScreen("gameover");
-    document.getElementById("finalScoreText").textContent = `${nickname} scored ${score} points!`;
-    submitScore(score);
-    renderLeaderboard(document.getElementById("gameoverLeaderboardList"), score);
+
+    const finalScore = score;
+    const tierImage = getScoreTierImage(finalScore);
+    document.getElementById("tierImageCalculating").src = tierImage;
+    submitScore(finalScore);
+
+    showScreen("calculating");
+    setTimeout(() => {
+      document.getElementById("tierImageGameover").src = tierImage;
+      document.getElementById("finalScoreText").textContent = `${nickname} scored ${finalScore} points!`;
+      showScreen("gameover");
+      renderLeaderboard(document.getElementById("gameoverLeaderboardList"), finalScore);
+    }, CALCULATING_DELAY_MS);
   }
 
   // ---- Leaderboard --------------------------------------------------------------
