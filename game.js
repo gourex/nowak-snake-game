@@ -4,6 +4,8 @@
   const MIN_INTERVAL_MS = 75;
   const SPEEDUP_PER_FOOD = 4;
   const POINTS_PER_FOOD = 10;
+  const START_LEADERBOARD_LIMIT = 10;
+  const GAMEOVER_LEADERBOARD_LIMIT = 3;
 
   // ---- Theme (night mode) -----------------------------------------------------
   const THEME_KEY = "nowak-snake-theme";
@@ -232,7 +234,7 @@
       document.getElementById("finalScoreText").textContent = `${nickname} scored ${finalScore} points!`;
       document.getElementById("shareStatusText").textContent = "";
       showScreen("gameover");
-      renderLeaderboard(document.getElementById("gameoverLeaderboardList"), finalScore);
+      renderLeaderboard(document.getElementById("gameoverLeaderboardList"), finalScore, GAMEOVER_LEADERBOARD_LIMIT);
     }, CALCULATING_DELAY_MS);
   }
 
@@ -277,9 +279,7 @@
     listEl.appendChild(div);
   }
 
-  const LEADERBOARD_LIMIT = 3;
-
-  function renderLeaderboard(listEl, highlightScore) {
+  function renderLeaderboard(listEl, highlightScore, limit) {
     setEmptyMessage(listEl, "Loading…");
     fetchLeaderboard().then((entries) => {
       if (!window.GAME_CONFIG || !window.GAME_CONFIG.LEADERBOARD_URL) {
@@ -291,7 +291,7 @@
         return;
       }
       listEl.textContent = "";
-      entries.slice(0, LEADERBOARD_LIMIT).forEach((entry, i) => {
+      entries.slice(0, limit).forEach((entry, i) => {
         const entryScore = Number(entry.score) || 0;
         const isMe = entry.nickname === nickname && entryScore === highlightScore;
 
@@ -501,7 +501,7 @@
     const panel = document.getElementById("startLeaderboardPanel");
     panel.hidden = !panel.hidden;
     if (!panel.hidden) {
-      renderLeaderboard(document.getElementById("startLeaderboardList"), null);
+      renderLeaderboard(document.getElementById("startLeaderboardList"), null, START_LEADERBOARD_LIMIT);
     }
   });
 
