@@ -5,6 +5,32 @@
   const SPEEDUP_PER_FOOD = 4;
   const POINTS_PER_FOOD = 10;
 
+  // ---- Theme (night mode) -----------------------------------------------------
+  const THEME_KEY = "nowak-snake-theme";
+  const themeToggle = document.getElementById("themeToggle");
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
+    draw(); // re-render the canvas immediately with the new palette
+  }
+
+  function initTheme() {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === "dark" || saved === "light") {
+      applyTheme(saved);
+      return;
+    }
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    applyTheme(prefersDark ? "dark" : "light");
+  }
+
+  themeToggle.addEventListener("click", () => {
+    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_KEY, next);
+    applyTheme(next);
+  });
+
   // ---- Screens --------------------------------------------------------------
   const screens = {
     start: document.getElementById("screen-start"),
@@ -131,7 +157,8 @@
     ctx.clearRect(0, 0, w, w);
 
     // subtle grid
-    ctx.strokeStyle = "rgba(24,90,125,0.06)";
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    ctx.strokeStyle = isDark ? "rgba(255,255,255,0.07)" : "rgba(24,90,125,0.06)";
     ctx.lineWidth = 1;
     for (let i = 1; i < GRID_SIZE; i++) {
       ctx.beginPath();
@@ -150,10 +177,10 @@
     ctx.textBaseline = "middle";
     ctx.fillText("🦷", (food.x + 0.5) * cellSize, (food.y + 0.55) * cellSize);
 
-    // snake
+    // snake (brighter head in dark mode so it stays visible against a near-black canvas)
     snake.forEach((seg, i) => {
       const pad = cellSize * 0.08;
-      ctx.fillStyle = i === 0 ? "#185a7d" : "#238dc1";
+      ctx.fillStyle = i === 0 ? (isDark ? "#ffdd00" : "#185a7d") : "#238dc1";
       roundRect(ctx, seg.x * cellSize + pad, seg.y * cellSize + pad, cellSize - pad * 2, cellSize - pad * 2, cellSize * 0.25);
       ctx.fill();
     });
@@ -337,4 +364,6 @@
   document.getElementById("backToStartBtn").addEventListener("click", () => {
     showScreen("start");
   });
+
+  initTheme();
 })();

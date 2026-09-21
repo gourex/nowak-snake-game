@@ -5,11 +5,29 @@
   --dark-blue: #185a7d;
   --yellow: #ffdd00;
   --white: #ffffff;
+  --surface: #ffffff;
+  --btn-ink: #185a7d;
   --ink: #1c2b36;
   --ink-soft: #4a5a66;
   --bg-light: #f4f8fb;
   --line: #dce6ec;
   --card-radius: 14px;
+}
+
+/* NIGHT MODE ------------------------------------------------------------------
+   --white and --btn-ink stay fixed (they're used for text that must stay
+   light/dark regardless of theme, e.g. on top of the yellow button or the
+   blue header). Everything else re-themes via the cascade automatically. */
+[data-theme="dark"] {
+  --surface: #16232e;
+  --bg-light: #101c26;
+  --ink: #e9f1f6;
+  --ink-soft: #93a8b8;
+  --line: #28394a;
+  --dark-blue: #7cc9ec;
+}
+[data-theme="dark"] .lb-row.lb-me {
+  background: rgba(255, 221, 0, 0.12);
 }
 
 @font-face {
@@ -49,11 +67,12 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--white);
+  background: var(--surface);
 }
 
 /* HEADER --------------------------------------------------------------- */
 .game-header {
+  position: relative;
   background: var(--main-blue);
   padding: 18px 24px 20px;
   text-align: center;
@@ -66,6 +85,23 @@ body {
   letter-spacing: 0.6px;
   text-transform: uppercase;
 }
+.theme-toggle {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.theme-toggle:active { transform: translateY(1px); }
 
 /* MAIN ------------------------------------------------------------------ */
 main { flex: 1; padding: 24px 24px 32px; }
@@ -125,7 +161,7 @@ main { flex: 1; padding: 24px 24px 32px; }
   width: 100%;
   border: none;
   background: var(--yellow);
-  color: var(--dark-blue);
+  color: var(--btn-ink);
   font-family: inherit;
   font-weight: 900;
   font-size: 15px;
@@ -165,7 +201,7 @@ main { flex: 1; padding: 24px 24px 32px; }
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--white);
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 8px 12px;
