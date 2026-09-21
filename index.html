@@ -28,7 +28,7 @@
         <button class="btn btn-secondary" id="showLeaderboardBtn">🏆 View Leaderboard</button>
 
         <div class="leaderboard-panel" id="startLeaderboardPanel" hidden>
-          <div class="leaderboard-title">Top Scores</div>
+          <div class="leaderboard-title">Top 3 Scores</div>
           <div class="leaderboard-list" id="startLeaderboardList"></div>
         </div>
       </section>
@@ -78,7 +78,7 @@
         <p class="gameover-sub" id="submitStatusText"></p>
 
         <div class="leaderboard-panel" id="gameoverLeaderboardPanel">
-          <div class="leaderboard-title">Top Scores</div>
+          <div class="leaderboard-title">Top 3 Scores</div>
           <div class="leaderboard-list" id="gameoverLeaderboardList"></div>
         </div>
 
@@ -95,6 +95,16 @@
       <strong>Better smiles. Together.</strong><br>
       Nowak Dental Supplies
     </footer>
+  </div>
+
+  <!-- SHARE RESULT MODAL -->
+  <div class="modal-overlay" id="shareModal" hidden>
+    <div class="modal-card">
+      <button class="modal-close" id="shareModalCloseBtn" aria-label="Close">&times;</button>
+      <img class="modal-image" id="shareModalImg" alt="Your Nowak Snake Challenge result">
+      <button class="btn" id="shareModalDownloadBtn">⬇ Download Image</button>
+      <p class="modal-caption">Share this in the Slack channel!</p>
+    </div>
   </div>
 
   <script src="game-config.js"></script>

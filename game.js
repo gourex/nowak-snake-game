@@ -277,6 +277,8 @@
     listEl.appendChild(div);
   }
 
+  const LEADERBOARD_LIMIT = 3;
+
   function renderLeaderboard(listEl, highlightScore) {
     setEmptyMessage(listEl, "Loading…");
     fetchLeaderboard().then((entries) => {
@@ -289,7 +291,7 @@
         return;
       }
       listEl.textContent = "";
-      entries.forEach((entry, i) => {
+      entries.slice(0, LEADERBOARD_LIMIT).forEach((entry, i) => {
         const entryScore = Number(entry.score) || 0;
         const isMe = entry.nickname === nickname && entryScore === highlightScore;
 
@@ -318,9 +320,16 @@
 
   // ---- Share result -----------------------------------------------------------------
   // Composites the revealed tier image with the player's score into one PNG,
-  // then hands it to the Web Share sheet (mobile) or triggers a download (desktop).
+  // downloads it immediately, then shows a modal (with its own download button,
+  // in case the auto-download didn't land) prompting the player to post it in Slack.
   const shareResultBtn = document.getElementById("shareResultBtn");
   const shareStatusText = document.getElementById("shareStatusText");
+  const shareModal = document.getElementById("shareModal");
+  const shareModalImg = document.getElementById("shareModalImg");
+  const shareModalDownloadBtn = document.getElementById("shareModalDownloadBtn");
+  const shareModalCloseBtn = document.getElementById("shareModalCloseBtn");
+  let shareBlobUrl = null;
+  let shareFileName = "";
 
   function loadImageEl(src) {
     return new Promise((resolve, reject) => {
@@ -376,6 +385,24 @@
     return canvas;
   }
 
+  function triggerDownload(url, fileName) {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function openShareModal() {
+    shareModalImg.src = shareBlobUrl;
+    shareModal.hidden = false;
+  }
+
+  function closeShareModal() {
+    shareModal.hidden = true;
+  }
+
   async function shareResult() {
     const finalScore = score;
     shareResultBtn.disabled = true;
@@ -385,28 +412,28 @@
       const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
       if (!blob) throw new Error("Could not create image.");
 
-      const fileName = `nowak-snake-${finalScore}.png`;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 4000);
-      shareStatusText.textContent = "Image downloaded!";
+      if (shareBlobUrl) URL.revokeObjectURL(shareBlobUrl);
+      shareBlobUrl = URL.createObjectURL(blob);
+      shareFileName = `nowak-snake-${finalScore}.png`;
+
+      triggerDownload(shareBlobUrl, shareFileName);
+      shareStatusText.textContent = "";
+      openShareModal();
     } catch (e) {
-      if (e && e.name !== "AbortError") {
-        shareStatusText.textContent = "Couldn't create the share image.";
-      } else {
-        shareStatusText.textContent = "";
-      }
+      shareStatusText.textContent = "Couldn't create the share image.";
     } finally {
       shareResultBtn.disabled = false;
     }
   }
 
   shareResultBtn.addEventListener("click", shareResult);
+  shareModalDownloadBtn.addEventListener("click", () => {
+    if (shareBlobUrl) triggerDownload(shareBlobUrl, shareFileName);
+  });
+  shareModalCloseBtn.addEventListener("click", closeShareModal);
+  shareModal.addEventListener("click", (e) => {
+    if (e.target === shareModal) closeShareModal();
+  });
 
   // ---- Input ----------------------------------------------------------------------
   document.addEventListener("keydown", (e) => {
@@ -479,12 +506,14 @@
   });
 
   document.getElementById("playAgainBtn").addEventListener("click", () => {
+    closeShareModal();
     resetState();
     showScreen("game");
     requestAnimationFrame(resizeCanvas);
   });
 
   document.getElementById("backToStartBtn").addEventListener("click", () => {
+    closeShareModal();
     showScreen("start");
   });
 
