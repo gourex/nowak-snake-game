@@ -386,26 +386,15 @@
       if (!blob) throw new Error("Could not create image.");
 
       const fileName = `nowak-snake-${finalScore}.png`;
-      const file = new File([blob], fileName, { type: "image/png" });
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        shareStatusText.textContent = "";
-        await navigator.share({
-          files: [file],
-          title: "Nowak Snake Challenge",
-          text: `${nickname} scored ${finalScore} points on the Nowak Snake Challenge!`
-        });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 4000);
-        shareStatusText.textContent = "Image downloaded!";
-      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      shareStatusText.textContent = "Image downloaded!";
     } catch (e) {
       if (e && e.name !== "AbortError") {
         shareStatusText.textContent = "Couldn't create the share image.";
