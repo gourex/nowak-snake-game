@@ -349,9 +349,9 @@ main { flex: 1; padding: 24px 24px 32px; }
 /* SCORE TIER IMAGE ------------------------------------------------------------ */
 .tier-image {
   display: block;
-  width: 180px;
-  height: 180px;
-  max-width: 60%;
+  width: 280px;
+  height: 280px;
+  max-width: 85%;
   margin: 0 auto 16px;
   border-radius: var(--card-radius);
   border: 3px solid var(--yellow);
@@ -388,6 +388,16 @@ main { flex: 1; padding: 24px 24px 32px; }
   min-height: 16px;
 }
 .result-actions { margin-top: 18px; }
+
+/* SHARE STATUS ---------------------------------------------------------------- */
+.share-status {
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin: -4px 0 10px;
+  min-height: 16px;
+}
 
 /* FOOTER ------------------------------------------------------------------- */
 .game-footer {

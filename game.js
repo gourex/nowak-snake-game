@@ -46,15 +46,17 @@
 
   // ---- Score tiers (image shown at game-over, per final score bracket) --------
   // Each bracket has 2 reaction images; one is picked at random on reveal.
+  // Boundaries keep the original 7-tier shape (narrow bands early, wider
+  // toward the top), rescaled so 400 is the practical ceiling.
   const CALCULATING_DELAY_MS = 1300;
   const SCORE_TIERS = [
-    { min: 0, max: 99, images: ["assets/score-tiers/0-99-1.png", "assets/score-tiers/0-99-2.png"] },
-    { min: 100, max: 299, images: ["assets/score-tiers/100-299-1.png", "assets/score-tiers/100-299-2.png"] },
-    { min: 300, max: 499, images: ["assets/score-tiers/300-499-1.png", "assets/score-tiers/300-499-2.png"] },
-    { min: 500, max: 999, images: ["assets/score-tiers/500-999-1.png", "assets/score-tiers/500-999-2.png"] },
-    { min: 1000, max: 1499, images: ["assets/score-tiers/1000-1499-1.png", "assets/score-tiers/1000-1499-2.png"] },
-    { min: 1500, max: 1999, images: ["assets/score-tiers/1500-1999-1.png", "assets/score-tiers/1500-1999-2.png"] },
-    { min: 2000, max: Infinity, images: ["assets/score-tiers/2000-plus-1.png", "assets/score-tiers/2000-plus-2.png"] }
+    { min: 0, max: 19, images: ["assets/score-tiers/0-19-1.png", "assets/score-tiers/0-19-2.png"] },
+    { min: 20, max: 59, images: ["assets/score-tiers/20-59-1.png", "assets/score-tiers/20-59-2.png"] },
+    { min: 60, max: 99, images: ["assets/score-tiers/60-99-1.png", "assets/score-tiers/60-99-2.png"] },
+    { min: 100, max: 199, images: ["assets/score-tiers/100-199-1.png", "assets/score-tiers/100-199-2.png"] },
+    { min: 200, max: 299, images: ["assets/score-tiers/200-299-1.png", "assets/score-tiers/200-299-2.png"] },
+    { min: 300, max: 399, images: ["assets/score-tiers/300-399-1.png", "assets/score-tiers/300-399-2.png"] },
+    { min: 400, max: Infinity, images: ["assets/score-tiers/400-plus-1.png", "assets/score-tiers/400-plus-2.png"] }
   ];
   function getScoreTierImage(finalScore) {
     const tier = SCORE_TIERS.find((t) => finalScore >= t.min && finalScore <= t.max) || SCORE_TIERS[0];
@@ -228,6 +230,7 @@
     setTimeout(() => {
       document.getElementById("tierImageGameover").src = tierImage;
       document.getElementById("finalScoreText").textContent = `${nickname} scored ${finalScore} points!`;
+      document.getElementById("shareStatusText").textContent = "";
       showScreen("gameover");
       renderLeaderboard(document.getElementById("gameoverLeaderboardList"), finalScore);
     }, CALCULATING_DELAY_MS);
@@ -312,6 +315,109 @@
       });
     });
   }
+
+  // ---- Share result -----------------------------------------------------------------
+  // Composites the revealed tier image with the player's score into one PNG,
+  // then hands it to the Web Share sheet (mobile) or triggers a download (desktop).
+  const shareResultBtn = document.getElementById("shareResultBtn");
+  const shareStatusText = document.getElementById("shareStatusText");
+
+  function loadImageEl(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+  }
+
+  async function buildShareCanvas(finalScore) {
+    const tierImg = document.getElementById("tierImageGameover");
+    const srcImg = await loadImageEl(tierImg.src);
+
+    const W = 800;
+    const IMG_H = 800;
+    const TEXT_H = 190;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = IMG_H + TEXT_H;
+    const cctx = canvas.getContext("2d");
+
+    cctx.fillStyle = "#185a7d";
+    cctx.fillRect(0, 0, W, canvas.height);
+
+    // cover-fit the tier image into the top square
+    const scale = Math.max(W / srcImg.width, IMG_H / srcImg.height);
+    const sw = W / scale;
+    const sh = IMG_H / scale;
+    const sx = (srcImg.width - sw) / 2;
+    const sy = (srcImg.height - sh) / 2;
+    cctx.drawImage(srcImg, sx, sy, sw, sh, 0, 0, W, IMG_H);
+
+    cctx.fillStyle = "#ffdd00";
+    cctx.fillRect(0, IMG_H, W, 6);
+
+    try {
+      await Promise.all([
+        document.fonts.load('900 48px Roboto'),
+        document.fonts.load('700 26px Roboto')
+      ]);
+    } catch (e) { /* fall back to default font if webfont load fails */ }
+
+    cctx.textAlign = "center";
+    cctx.fillStyle = "#ffffff";
+    cctx.font = "900 48px Roboto, sans-serif";
+    cctx.fillText(`${nickname} scored ${finalScore} points!`, W / 2, IMG_H + 85, W - 60);
+
+    cctx.font = "700 26px Roboto, sans-serif";
+    cctx.fillStyle = "#ffdd00";
+    cctx.fillText("Nowak Snake Challenge — The Nowak Insider", W / 2, IMG_H + 135, W - 60);
+
+    return canvas;
+  }
+
+  async function shareResult() {
+    const finalScore = score;
+    shareResultBtn.disabled = true;
+    shareStatusText.textContent = "Preparing image…";
+    try {
+      const canvas = await buildShareCanvas(finalScore);
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+      if (!blob) throw new Error("Could not create image.");
+
+      const fileName = `nowak-snake-${finalScore}.png`;
+      const file = new File([blob], fileName, { type: "image/png" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        shareStatusText.textContent = "";
+        await navigator.share({
+          files: [file],
+          title: "Nowak Snake Challenge",
+          text: `${nickname} scored ${finalScore} points on the Nowak Snake Challenge!`
+        });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        shareStatusText.textContent = "Image downloaded!";
+      }
+    } catch (e) {
+      if (e && e.name !== "AbortError") {
+        shareStatusText.textContent = "Couldn't create the share image.";
+      } else {
+        shareStatusText.textContent = "";
+      }
+    } finally {
+      shareResultBtn.disabled = false;
+    }
+  }
+
+  shareResultBtn.addEventListener("click", shareResult);
 
   // ---- Input ----------------------------------------------------------------------
   document.addEventListener("keydown", (e) => {
